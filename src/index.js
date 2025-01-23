@@ -1,23 +1,23 @@
 const express=require("express")
-
+const connentDB=require("./config/databse.js")
 const app=express()
 
 
-app.use("/",(req,res)=>{
-    res.end("hello")
-})
+app.use(express.json())
+app.get("/",(req,res)=>{
+    console.log("req.body",req.body)
+    // res.end("hello")
+    
+},
 
-app.use("/a", (req,res)=>{
-    res.end("checking")
-})
+)
 
-//  /user?userid=123&name=sandeepreddy  query parameters   req.query
+ connentDB().then(()=>{
+    console.log("data base connected")
+    app.listen(3000,()=>{
+        console.log("server running")
+    })
+ }).catch(()=>{
+    console.log("failed to connect DB")
+ })
 
-app.get("/user/:name",(req,res)=>{
-    res.send("checking dynamic route")
-})
-
-
-app.listen(3000,()=>{
-    console.log("server running")
-})
