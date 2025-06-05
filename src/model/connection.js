@@ -21,6 +21,7 @@ required:true
     
 })
 
+connectionSchema.index({fromUserId:1,toUserId:1})
 
 const ConnectionRequest= new mongoose.model("ConnectionRequest",connectionSchema)
 

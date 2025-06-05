@@ -2,7 +2,7 @@ const User = require("../model/User");
 const jwt=require("jsonwebtoken")
 const bcrypt=require("bcrypt")
 const  authMiddleware= async(req, res, next) => { 
-    console.log('Request received');
+
     const {token}=req.cookies
 
     if(!token){
