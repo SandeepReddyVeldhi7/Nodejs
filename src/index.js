@@ -9,10 +9,11 @@ app.use(cookieParser())
 const auth =require("./routes/auth.js")
 const profile=require("./routes/profile.js")
 const request=require("./routes/request.js")
+const user=require("./routes/user.js")
 app.use("/",auth)
 app.use("/",profile)
 app.use("/",request)
-
+app.use("/",user)
 
 
 
