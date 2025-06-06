@@ -85,6 +85,7 @@ hideUsersFromFeed.add(req.toUserId._id.toString());
 
   res.json({
     users,
+    connections,
   });
   
 
