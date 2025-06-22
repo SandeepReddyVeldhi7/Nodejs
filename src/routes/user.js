@@ -40,14 +40,15 @@ router.get("/user/connections", async (req, res) => {
           status: "accepted",
         },
       ],
-    }).populate("fromUserId", "firstName", "lastName", "PhotoUrl")
-    .populate("toUserId", "firstName", "lastName", "PhotoUrl")
+    })
+      .populate("fromUserId", "firstName", "lastName", "PhotoUrl")
+      .populate("toUserId", "firstName", "lastName", "PhotoUrl");
 
     const data = connections.map((row) => {
-        if(row.fromUserId.toString() === loggedInUserId.toString()){
-            return row.toUserId
-        }
-        return row.fromUserId
+      if (row.fromUserId.toString() === loggedInUserId.toString()) {
+        return row.toUserId;
+      }
+      return row.fromUserId;
     });
 
     res.json({
@@ -58,40 +59,43 @@ router.get("/user/connections", async (req, res) => {
   }
 });
 
-router.get("/feed",async(req,res)=>{
+router.get("/feed", async (req, res) => {
   const loggedInUser = req.user;
 
+  const page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
 
+  limit = limit > 50 ? 50 : limit;
+  
   const connections = await ConnectionRequest.find({
     $or: [
       { toUserId: loggedInUser._id, status: "accepted" },
       { fromUserId: loggedInUser._id, status: "accepted" },
     ],
-  }).populate("fromUserId", "firstName lastName photoUrl")
+  })
+    .populate("fromUserId", "firstName lastName photoUrl")
     .populate("toUserId", "firstName lastName photoUrl");
-  
 
-
-const hideUsersFromFeed=new Set();
-connections.forEach((req) => {
-hideUsersFromFeed.add(req.fromUserId._id.toString());
-hideUsersFromFeed.add(req.toUserId._id.toString());
-})
-
+  const hideUsersFromFeed = new Set();
+  connections.forEach((req) => {
+    hideUsersFromFeed.add(req.fromUserId._id.toString());
+    hideUsersFromFeed.add(req.toUserId._id.toString());
+  });
 
   const users = await User.find({
-   $and : [{ _id: { $nin: Array.from(hideUsersFromFeed) }},{ _id: { $ne: loggedInUser._id }}]
-  }).select("firstName lastName photoUrl");
+    $and: [
+      { _id: { $nin: Array.from(hideUsersFromFeed) } },
+      { _id: { $ne: loggedInUser._id } },
+    ],
+  })
+    .select("firstName lastName photoUrl")
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   res.json({
     users,
     connections,
   });
-  
-
-   
-
-
-})
+});
 
 module.exports = router;

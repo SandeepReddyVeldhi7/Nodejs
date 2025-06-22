@@ -8,35 +8,41 @@ const bcrypt=require("bcrypt")
 
  router.post ("/login",async(req,res)=>{
     console.log("hello")
-    const {emailId,password}=req.body
-const userExist=await User.findOne({emailId:emailId})
-        if (!userExist){
-            
-            throw new Error("User does not exist");
-
-        }
-
-        const comparePassword=await  userExist.isPassword(password) 
-
-        if (!comparePassword){
-            throw new Error ("Invalid Credentials")
-        }
-
-
-
-        
-       const token = await userExist.getJwt()
-
-       console.log("token ",token)
-       res.cookie("token",token,{httpOnly:true} )
-
-       if(!token){
-        throw new Error("token not found")
-       }
-       res.status(201).json({
-        message:"user logged in successfully",
-        token
-       })
+    try {
+      const {emailId,password}=req.body
+  const userExist=await User.findOne({emailId:emailId})
+          if (!userExist){
+              
+              throw new Error("User does not exist");
+  
+          }
+  
+          const comparePassword=await  userExist.isPassword(password) 
+  
+          if (!comparePassword){
+              throw new Error ("Invalid Credentials")
+          }
+  
+  
+  
+          
+         const token = await userExist.getJwt()
+  
+         console.log("token ",token)
+         res.cookie("token",token,{httpOnly:true} )
+  
+         if(!token){
+          throw new Error("token not found")
+         }
+         res.status(201).json({
+          message:userExist,
+          token
+         })
+    } catch (error) {
+      res.status(400).json({
+        message:"Something Went Wrong"
+      })
+    }
 })
 
 
@@ -97,4 +103,17 @@ res.status(201).json({
 
 
 })
+
+
+router.post("/logout", (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+    sameSite: "Lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
 module.exports=router
