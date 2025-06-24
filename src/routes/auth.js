@@ -15,7 +15,7 @@ router.post("/login", async (req, res) => {
     }
 
     const comparePassword = await userExist.isPassword(password);
-
+console.log("comparePassword", comparePassword  )
     if (!comparePassword) {
       throw new Error("Invalid Credentials");
     }
@@ -23,7 +23,12 @@ router.post("/login", async (req, res) => {
     const token = await userExist.getJwt();
 
     console.log("token ", token);
-    res.cookie("token", token, { httpOnly: true });
+   // ✅ Proper cookie settings!
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",   // ✅ allow cross-origin local dev
+      secure: false      // ✅ true in production HTTPS only
+    });
 
     if (!token) {
       throw new Error("token not found");
